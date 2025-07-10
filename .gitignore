@@ -21,8 +21,11 @@ bin/
 
 ### Properties Files ###
 *.properties
-!**/src/main/**/application.properties
 !**/src/test/**/application.properties
+!**/src/main/**/application.properties
+!**/src/main/**/db.properties
+!**/src/main/**/error.properties
+!**/src/main/**/email.properties
 
 ### IntelliJ IDEA ###
 .idea
