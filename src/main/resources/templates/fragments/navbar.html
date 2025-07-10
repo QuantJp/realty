@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <nav class="navbar" th:fragment="navbar">
+        <style>
+            .user-menu {
+                display: flex;
+                align-items: center;
+            }
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+            .dropdown-toggle {
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                font-size: 24px;
+                padding: 0 10px;
+                color: white; /* Make icon visible */
+            }
+            .dropdown-menu {
+                display: none;
+                position: absolute;
+                right: 0;
+                background-color: #fff;
+                min-width: 160px;
+                max-width: 300px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1000;
+                border-radius: 4px;
+                padding: 5px 0;
+                overflow-x: hidden;
+                max-height: 300px;
+            }
+            .dropdown-menu.show {
+                display: block;
+            }
+            .dropdown-item {
+                display: block;
+                width: 100%;
+                padding: 8px 16px;
+                clear: both;
+                font-weight: 400;
+                color: #212529;
+                text-align: inherit;
+                white-space: nowrap;
+                background-color: transparent;
+                border: 0;
+                text-decoration: none;
+                font-size: inherit;
+                line-height: inherit;
+                cursor: pointer;
+                transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+            }
+            .dropdown-item:hover {
+                background-color: #f8f9fa;
+                color: #16181b;
+                text-decoration: none;
+            }
+            .dropdown-item:active {
+                color: #fff;
+                text-decoration: none;
+                background-color: #0d6efd;
+            }
+            /* Ensure button inside form takes full width */
+            .dropdown-menu form {
+                margin: 0;
+            }
+            .dropdown-menu form button {
+                width: 100%;
+                text-align: left;
+            }
+        </style>
+        <div class="navbar-logo">
+            <a href="/">Realty</a>
+        </div>
+        <div class="navbar-links">
+            <!-- 로그인 되어있을 때 표시되는 화면 -->
+            <div sec:authorize="isAuthenticated()" class="user-menu">
+                <span style="color: white; margin-right: 10px;" th:text="${#authentication.principal.name} + '님'"></span>
+                <div class="dropdown">
+                    <button id="user-menu-button" class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                        &#128100; <!-- 유저 아이콘 이모지 -->
+                    </button>
+                    <!-- 드랍다운 메뉴 -->
+                    <div id="user-menu-dropdown" class="dropdown-menu" aria-labelledby="user-menu-button">
+                        <a href="/modify" class="dropdown-item">회원정보수정</a>
+                        <a href="/mypage" class="dropdown-item">마이페이지</a>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- 로그인 되어있지 않을 때 표시되는 화면 -->
+            <div sec:authorize="!isAuthenticated()">
+                <a href="/login" class="btn">로그인</a>
+                <a href="/register" class="btn">회원가입</a>
+            </div>
+        </div>
+        <script>
+            if (typeof window._initNavbarDropdown === 'undefined') { // _initNavbarDropdown 함수가 정의되지 않았을 경우만 정의하도록 하는 조건문
+                window._initNavbarDropdown = function() {
+                    const userMenuButton = document.getElementById('user-menu-button'); // 유저 메뉴 버튼
+                    const userMenuDropdown = document.getElementById('user-menu-dropdown'); // 드랍다운 메뉴
+                    // 유저 메뉴 버튼과 드랍다운 메뉴가 있는지 확인
+                    if (userMenuButton && userMenuDropdown) {
+                        userMenuButton.addEventListener('click', function (event) { // 유저 메뉴 버튼을 클릭하면
+                            event.stopPropagation(); // 이벤트가 상위 요소로 퍼져나가는 걸 막음
+                            const isExpanded = userMenuButton.getAttribute('aria-expanded') === 'true'; // 드랍다운 메뉴가 열려있는지 확인
+                            userMenuButton.setAttribute('aria-expanded', String(!isExpanded)); // 드랍다운 메뉴가 열려있으면 false, 닫혀있으면 true로 설정
+                            userMenuDropdown.classList.toggle('show'); // userMenuDropdown 요소에 show라는 CSS 클래스를 추가하거나 제거(드롭다운 메뉴 표시/숨김 여부 결정)
+                        });
+
+                        // 바깥을 클릭하면 드랍다운 메뉴 닫도록 설정
+                        document.addEventListener('click', function (event) {
+                            if (userMenuDropdown.classList.contains('show') && !userMenuButton.contains(event.target) && !userMenuDropdown.contains(event.target)) {
+                                userMenuDropdown.classList.remove('show');
+                                userMenuButton.setAttribute('aria-expanded', 'false');
+                            }
+                        });
+                    }
+                };
+                // Run the initialization
+                // Use DOMContentLoaded to ensure elements are present
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', window._initNavbarDropdown);
+                } else {
+                    window._initNavbarDropdown();
+                }
+            }
+        </script>
+    </nav>
+</body>
+</html>
