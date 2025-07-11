@@ -1,0 +1,30 @@
+{
+  "name": {
+    "required": true,
+    "minLength": 2,
+    "maxLength": 30,
+    "message": "이름은 2자 이상 30자 이하여야 합니다."
+  },
+  "userId": {
+    "required": true,
+    "minLength": 4,
+    "maxLength": 20,
+    "message": "아이디는 4자 이상 20자 이하여야 합니다."
+  },
+  "userNickname": {
+    "required": true,
+    "minLength": 2,
+    "maxLength": 20,
+    "message": "닉네임은 2자 이상 20자 이하여야 합니다."
+  },
+  "password": {
+    "required": true,
+    "minLength": 8,
+    "message": "비밀번호는 8자 이상이어야 합니다."
+  },
+  "email": {
+    "required": true,
+    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+    "message": "유효한 이메일 주소를 입력해주세요."
+  }
+}

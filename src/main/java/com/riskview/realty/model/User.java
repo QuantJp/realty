@@ -59,7 +59,6 @@ public class User {
     private RolePermission role;
 
     @Column(name = "preferred_language", length = 20)
-    @ColumnDefault("'ko'")
     private String preferredLanguage="ko";
 
     @CreationTimestamp
@@ -69,5 +68,4 @@ public class User {
     @Column(name = "is_deleted")
     @ColumnDefault("false")
     private boolean isDeleted;
-
 }

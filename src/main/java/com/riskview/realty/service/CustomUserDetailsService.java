@@ -21,7 +21,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with userId: " + userId));
+                .orElseThrow(() -> new UsernameNotFoundException("login.error.user.notfound"));
+
+        if (user.isDeleted()) {
+            throw new UsernameNotFoundException("login.error.user.deleted");
+        }
 
         return new CustomUserDetails(
                 user.getUserSeq(),
@@ -29,7 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getPasswordHash(),
                 user.getName(),
                 user.getRole().getRole(),
-                !user.isDeleted(),
+                true,
                 user.getRole().isCanManageUsers(),
                 user.getRole().isCanViewAllDocs(),
                 user.getUserCode()

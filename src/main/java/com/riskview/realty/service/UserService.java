@@ -47,7 +47,7 @@ public class UserService {
         // 세션에서 인증코드를 가져옴
         String sessionVerificationCode = (String) session.getAttribute("verificationCode");
         // 세션에 저장된 인증코드와 입력된 인증코드가 일치하지 않으면 예외 발생
-        if (sessionVerificationCode == null || !sessionVerificationCode.equals(verificationCode)) {
+        if (sessionVerificationCode == null || !sessionVerificationCode.trim().equals(verificationCode.trim())) {
             throw new IllegalArgumentException("인증 코드가 올바르지 않습니다.");
         }
 

@@ -2,8 +2,9 @@ package com.riskview.realty.support;
 
 import com.riskview.realty.domain.dto.UserDTO;
 import com.riskview.realty.domain.repository.UserRepository;
-
+import com.riskview.realty.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -15,6 +16,9 @@ public class UserDTOValidator implements Validator {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // UserDTO 클래스 또는 그 자식 클래스만 지원
     @Override
@@ -30,6 +34,24 @@ public class UserDTOValidator implements Validator {
     @Override
     public void validate(@NonNull Object target, @NonNull Errors errors) {
         UserDTO userDTO = (UserDTO) target;
+
+        // 사용자 ID 존재 확인
+        User user = userRepository.findByUserId(userDTO.getUserId()).orElse(null);
+        if (user == null) {
+            errors.rejectValue("userId", "login.error.user.notfound");
+            return;
+        }
+
+        // 탈퇴한 사용자 확인
+        if (user.isDeleted()) {
+            errors.rejectValue("userId", "login.error.user.deleted");
+            return;
+        }
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(userDTO.getPassword(), user.getPasswordHash())) {
+            errors.rejectValue("password", "login.error.bad.credentials");
+        }
 
         // 비밀번호 일치 확인
         if (!userDTO.getPassword().equals(userDTO.getPasswordConfirm())) {

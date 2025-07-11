@@ -5,22 +5,29 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
+    <!-- Navbar -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Container -->
     <div class="container">
         <h2>로그인</h2>
         <!-- /login?logout=true일 때(즉, 로그아웃되었을 때) 작동 -->
         <div th:if="${param.logout}" class="alert alert-success">
             로그아웃되었습니다.
         </div>
-        <form th:action="@{/login}" method="post">
+        <!-- 에러 메시지 표시 -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            <span th:text="${param.errorMsg}"></span>
+        </div>
+        <form th:action="@{/login}" method="post" th:object="${userDTO}">
             <div>
                 <label for="userId">사용자 ID:</label>
-                <input type="text" id="userId" name="userId" autofocus="autofocus"/>
-            </div>
+                <input type="text" id="userId" name="userId" th:field="*{userId}" autofocus="autofocus"/>
+                </div>
             <div>
                 <label for="password">패스워드:</label>
-                <input type="password" id="password" name="password"/>
-            </div>
+                <input type="password" id="password" name="password" th:field="*{password}"/>
+                </div>
             <div>
                 <input type="submit" value="로그인"/>
             </div>

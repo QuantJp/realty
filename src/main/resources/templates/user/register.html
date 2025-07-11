@@ -6,104 +6,107 @@
 </head>
 <body>
     <div th:replace="~{fragments/navbar :: navbar}"></div>
+    
     <div class="container">
         <h2>회원가입</h2>
         <form id="registrationForm" th:action="@{/register}" method="post" th:object="${userDTO}">
-            <!-- Step 1: 계정 정보 -->
             <div class="form-step" id="step-1">
                 <h3>1단계: 계정 정보</h3>
                 <div>
                     <label for="userId">사용자 ID:</label>
-                    <input type="text" id="userId" th:field="*{userId}" placeholder="사용자 ID" required/>
+                    <input type="text" id="userId" name="userId" th:field="*{userId}" placeholder="사용자 ID"/>
+                    <span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="userNickname">닉네임:</label>
-                    <input type="text" id="userNickname" th:field="*{userNickname}" placeholder="닉네임" required/>
+                    <input type="text" id="userNickname" name="userNickname" th:field="*{userNickname}" placeholder="닉네임"/>
+                    <span th:if="${#fields.hasErrors('userNickname')}" th:errors="*{userNickname}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="password">패스워드:</label>
-                    <input type="password" id="password" th:field="*{password}" placeholder="패스워드 (8자 이상)" required/>
+                    <input type="password" id="password" name="password" th:field="*{password}" placeholder="패스워드 (4자 이상)" required/>
+                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="passwordConfirm">패스워드 확인:</label>
-                    <input type="password" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="패스워드 확인" required/>
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" th:field="*{passwordConfirm}" placeholder="패스워드 확인" required/>
+                    <span th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="email">이메일:</label>
-                    <input type="email" id="email" th:field="*{email}" placeholder="example@email.com" required/>
+                    <input type="email" id="email" name="email" th:field="*{email}" placeholder="example@email.com" required/>
+                    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="verificationCode">인증코드:</label>
                     <div class="input-with-button-container">
-                        <input type="text" id="verificationCode" name="verificationCode" placeholder="인증코드" required>
+                        <input type="text" id="verificationCode" name="verificationCode" th:field="*{verificationCode}" placeholder="인증코드" required/>
                         <button type="button" id="sendVerificationCodeBtn">전송</button>
                     </div>
+                    <span th:if="${#fields.hasErrors('verificationCode')}" th:errors="*{verificationCode}" class="register-error"></span>
                 </div>
                 <button type="button" class="next-step-btn">다음</button>
             </div>
 
-            <!-- Step 2: 개인 정보 및 약관 동의 -->
             <div class="form-step" id="step-2" style="display:none;">
                 <h3>2단계: 개인 정보 및 약관 동의</h3>
-                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="alert alert-danger"></div>
                 <div>
                     <label for="name">이름(실명):</label>
-                    <input type="text" id="name" th:field="*{name}" placeholder="실명" required/>
+                    <input type="text" id="name" name="name" th:field="*{name}" placeholder="실명" required/>
+                    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="register-error"></span>
                 </div>
-                <!-- 약관 동의 내용 추가 -->
                 <button type="submit">가입완료</button>
                 <button type="button" class="prev-step-btn">이전</button>
             </div>
-        </form>
-    </div>
+        </form> </div>
 
-    <!-- Step Indicator -->
     <div class="step-indicator-container">
         <div class="step-box active" data-step="1">1</div>
         <div class="step-box" data-step="2">2</div>
     </div>
 
+    <script src="js/registration/email-verification.js"></script>
+    <script src="js/registration/form-validation.js"></script>
     <script>
-        let currentStep = 1; // 현재 단계
-        const formSteps = document.querySelectorAll('.form-step'); // 모든 단계
-        const stepBoxes = document.querySelectorAll('.step-box'); // 단계 박스
+        // 폼 단계 관련 JavaScript 코드
+        let currentStep = 1;
+        const formSteps = document.querySelectorAll('.form-step');
+        const stepBoxes = document.querySelectorAll('.step-box');
 
         /**
-         * 단계를 표시하는 함수
+         * 단계를 표시하고 서버 오류 메시지를 업데이트하는 함수
          * @param {number} stepNum 표시할 단계 번호
          */
         function showStep(stepNum) {
-            formSteps.forEach((step, index) => {
-                step.style.display = (index + 1 === stepNum) ? 'block' : 'none';
-            });
-            stepBoxes.forEach((box, index) => {
-                if (index < stepNum) {
-                    box.classList.add('active');
-                } else {
-                    box.classList.remove('active');
+            if (stepNum >= 1 && stepNum <= formSteps.length) {
+                formSteps.forEach(step => step.style.display = 'none');
+                stepBoxes.forEach(box => box.classList.remove('active'));
+                
+                const currentStepDiv = document.getElementById(`step-${stepNum}`);
+                const currentStepBox = document.querySelector(`.step-box[data-step="${stepNum}"]`);
+                
+                if (currentStepDiv) {
+                    currentStepDiv.style.display = 'block';
                 }
-            });
-            currentStep = stepNum;
+                if (currentStepBox) {
+                    currentStepBox.classList.add('active');
+                }
+                currentStep = stepNum;
+
+                // 페이지 로드 시 또는 단계 변경 시 서버 오류 메시지를 보여줍니다.
+                displayServerErrors();
+            }
         }
 
+        // "다음" 버튼 클릭 이벤트 핸들러
         document.querySelectorAll('.next-step-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const currentStepDiv = document.getElementById(`step-${currentStep}`);
-                const inputs = currentStepDiv.querySelectorAll('input[required]');
-                let allValid = true;
-                inputs.forEach(input => {
-                    if (!input.checkValidity()) {
-                        allValid = false;
-                        input.reportValidity();
-                    }
-                });
-
-                if (allValid && currentStep < formSteps.length) {
-                    showStep(currentStep + 1);
-                }
+            button.addEventListener('click', (event) => {
+                event.preventDefault(); // 기본 동작 방지
+                // JavaScript에서 단계 전환을 처리하도록 함
             });
         });
 
+        // "이전" 버튼 클릭 이벤트 핸들러
         document.querySelectorAll('.prev-step-btn').forEach(button => {
             button.addEventListener('click', () => {
                 if (currentStep > 1) {
@@ -112,28 +115,7 @@
             });
         });
 
-        document.getElementById("sendVerificationCodeBtn").addEventListener("click", function() {
-            var email = document.getElementById("email").value;
-            if (email) {
-                fetch("/send-verification-code", { // UserController의 sendVerificationCode 메소드 호출
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    body: "email=" + encodeURIComponent(email)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert("인증 코드가 발송되었습니다.");
-                    } else {
-                        alert("인증 코드 발송에 실패했습니다.");
-                    }
-                });
-            } else {
-                alert("이메일을 입력해주세요.");
-            }
-        });
-
+        // 초기화
         showStep(currentStep);
     </script>
 </body>
