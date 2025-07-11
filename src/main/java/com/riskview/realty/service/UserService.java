@@ -10,12 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.http.HttpSession;
 import java.security.SecureRandom;
 
 @Service
 public class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -122,5 +126,58 @@ public class UserService {
         }
         // StringBuilder 객체를 문자열로 변환하여 반환
         return code.toString();
+    }
+
+    /**
+     * 회원탈퇴
+     * @param userDTO UserDTO 객체
+     */
+    @Transactional
+    public void deleteAccount(UserDTO userDTO) {
+        log.info("Starting account deletion process for user code: {}", userDTO.getUserCode());
+        
+        try {
+            // 1. 사용자 정보 조회
+            User user = userRepository.findByUserCode(userDTO.getUserCode())
+                    .orElseThrow(() -> {
+                        throw new RuntimeException("User not found with code: " + userDTO.getUserCode());
+                    });
+            
+            // 2. 소프트 삭제 처리
+            if (!user.isDeleted()) {
+                user.setDeleted(true);
+            } else {
+                throw new IllegalStateException("User is already deleted");
+            }
+            
+            // 3. 변경사항 저장
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public UserDTO findByUserId(String userId) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserCode(user.getUserCode());
+        userDTO.setUserId(user.getUserId());
+        userDTO.setUserNickname(user.getUserNickname());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setName(user.getName());
+        return userDTO;
+    }
+
+    public UserDTO findByUserCode(String userCode) {
+        User user = userRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new RuntimeException("User not found with code: " + userCode));
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserCode(user.getUserCode());
+        userDTO.setUserId(user.getUserId());
+        userDTO.setUserNickname(user.getUserNickname());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setName(user.getName());
+        return userDTO;
     }
 }

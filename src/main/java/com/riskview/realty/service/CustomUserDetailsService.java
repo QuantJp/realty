@@ -31,7 +31,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getRole().getRole(),
                 !user.isDeleted(),
                 user.getRole().isCanManageUsers(),
-                user.getRole().isCanViewAllDocs()
+                user.getRole().isCanViewAllDocs(),
+                user.getUserCode()
         );
     }
 }

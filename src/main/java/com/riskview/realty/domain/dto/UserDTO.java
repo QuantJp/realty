@@ -34,4 +34,6 @@ public class UserDTO {
     @NotBlank(message = "{validation.email.notblank}")
     @Email(message = "{validation.email.invalid}")
     private String email; // 사용자 이메일
+
+    private String userCode; // 사용자 코드
 }

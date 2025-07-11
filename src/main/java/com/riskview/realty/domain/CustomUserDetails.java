@@ -21,9 +21,10 @@ public class CustomUserDetails implements UserDetails {
     private boolean enabled; // 사용자 활성화 상태
     private boolean canManageUsers; // 사용자 관리 권한
     private boolean canViewAllDocs; // 모든 문서 조회 권한
+    private String userCode; // 사용자 코드
 
     // 인터페이스를 구현하는 클래스므로 수동으로 생성자 주입
-    public CustomUserDetails(Long userId, String email, String passwordHash, String name, String role, boolean enabled, boolean canManageUsers, boolean canViewAllDocs) {
+    public CustomUserDetails(Long userId, String email, String passwordHash, String name, String role, boolean enabled, boolean canManageUsers, boolean canViewAllDocs, String userCode) {
         this.userId = userId;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -32,6 +33,7 @@ public class CustomUserDetails implements UserDetails {
         this.enabled = enabled;
         this.canManageUsers = canManageUsers;
         this.canViewAllDocs = canViewAllDocs;
+        this.userCode = userCode;
     }
 
     // 사용자 ID 반환
@@ -95,5 +97,10 @@ public class CustomUserDetails implements UserDetails {
     // 모든 문서 조회 권한 반환
     public boolean getCanViewAllDocs() {
         return canViewAllDocs;
+    }
+    
+    // 사용자 코드 반환
+    public String getUserCode() {
+        return userCode;
     }
 }

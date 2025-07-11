@@ -27,16 +27,14 @@ public class User {
     /**
      * 사용자 고유 코드 (U + 8자리 숫자)
      */
-    @Column(name = "user_code", nullable = false, unique = true, length = 20)
-    private String userCode = "U00000000"; // 기본값으로 임시 코드 설정
+    @Column(name = "user_code", unique = true, nullable = false, length = 20)
+    private String userCode; // 기본값으로 임시 코드 설정
 
     /**
      * 사용자 고유 코드 생성
      */
     public void generateUserCode() {
-        // userCode가 임시 코드이고 userSeq가 null이 아니면
-        if (userCode.equals("U00000000") && userSeq != null) {
-            // user_seq가 8자리 숫자로 구성되므로, 10000000부터 시작
+        if (userCode != null && userSeq != null) {
             userCode = "U" + String.format("%08d", userSeq);
         }
     }

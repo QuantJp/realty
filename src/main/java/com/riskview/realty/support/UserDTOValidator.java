@@ -37,6 +37,15 @@ public class UserDTOValidator implements Validator {
             errors.rejectValue("passwordConfirm", "validation.password.mismatch");
         }
 
+        // 회원탈퇴 시 userCode 검증
+        if (errors.getFieldError("userCode") == null) { // 이미 userCode 오류가 있다면 건너뜀
+            if (userDTO.getUserCode() == null || userDTO.getUserCode().trim().isEmpty()) {
+                errors.rejectValue("userCode", "validation.userCode.required");
+            } else if (!userRepository.findByUserCode(userDTO.getUserCode()).isPresent()) {
+                errors.rejectValue("userCode", "validation.userCode.notfound");
+            }
+        }
+
         // 이메일 중복 확인
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
             // 이메일이 중복될 때 error.properties에 저장된 오류 메시지 등록
