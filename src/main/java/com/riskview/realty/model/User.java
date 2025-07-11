@@ -28,7 +28,7 @@ public class User {
      * 사용자 고유 코드 (U + 8자리 숫자)
      */
     @Column(name = "user_code", unique = true, nullable = false, length = 20)
-    private String userCode; // 기본값으로 임시 코드 설정
+    private String userCode="U00000000"; // 기본값으로 임시 코드 설정
 
     /**
      * 사용자 고유 코드 생성
@@ -60,7 +60,7 @@ public class User {
 
     @Column(name = "preferred_language", length = 20)
     @ColumnDefault("'ko'")
-    private String preferredLanguage;
+    private String preferredLanguage="ko";
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

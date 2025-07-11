@@ -3,8 +3,6 @@ package com.riskview.realty.controller;
 import com.riskview.realty.domain.CustomUserDetails;
 import com.riskview.realty.domain.dto.UserDTO;
 import com.riskview.realty.service.UserService;
-import com.riskview.realty.support.UserDTOValidator;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 // 일반 사용자 컨트롤러(ROLE_USER)
@@ -29,10 +26,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    // 사용자 정보 유효성 검사
-    @Autowired
-    private UserDTOValidator userDTOValidator;
 
     /**
      * 로그인 페이지
@@ -75,9 +68,9 @@ public class UserController {
      */
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("userDTO") UserDTO userDTO, BindingResult bindingResult, @RequestParam("verificationCode") String verificationCode, HttpSession session, RedirectAttributes redirectAttributes) {
-        userDTOValidator.validate(userDTO, bindingResult);
         // 유효성 검사 실패 시 회원가입 페이지로 돌아감
         if (bindingResult.hasErrors()) {
+            System.out.println("유효성 검사 실패");
             return "user/register";
         }
         // 유효성 검사 성공 시 회원가입 진행
@@ -87,8 +80,8 @@ public class UserController {
             // 리다이렉트 후 전달할 메시지
             redirectAttributes.addFlashAttribute("successMessage", "회원가입이 성공적으로 완료되었습니다!");
         } catch (IllegalArgumentException e) {
-            // 인증코드가 올바르지 않을 때
             bindingResult.rejectValue("email", "invalid.verificationCode", e.getMessage());
+            System.out.println("회원가입 도중 에러 발생.");
             // 회원가입 페이지로 돌아감
             return "user/register";
         }

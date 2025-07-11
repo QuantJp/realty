@@ -8,31 +8,26 @@
     <div th:replace="~{fragments/navbar :: navbar}"></div>
     <div class="container">
         <h2>회원가입</h2>
-        <form id="registrationForm" th:action="@{/register}" th:object="${userDTO}" method="post">
+        <form id="registrationForm" th:action="@{/register}" method="post" th:object="${userDTO}">
             <!-- Step 1: 계정 정보 -->
             <div class="form-step" id="step-1">
                 <h3>1단계: 계정 정보</h3>
-                <div th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}" class="alert alert-danger"></div>
                 <div>
                     <label for="userId">사용자 ID:</label>
                     <input type="text" id="userId" th:field="*{userId}" placeholder="사용자 ID" required/>
                 </div>
-                <div th:if="${#fields.hasErrors('userNickname')}" th:errors="*{userNickname}" class="alert alert-danger"></div>
                 <div>
                     <label for="userNickname">닉네임:</label>
                     <input type="text" id="userNickname" th:field="*{userNickname}" placeholder="닉네임" required/>
                 </div>
-                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="alert alert-danger"></div>
                 <div>
                     <label for="password">패스워드:</label>
                     <input type="password" id="password" th:field="*{password}" placeholder="패스워드 (8자 이상)" required/>
                 </div>
-                <div th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="alert alert-danger"></div>
                 <div>
                     <label for="passwordConfirm">패스워드 확인:</label>
-                    <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="패스워드 확인" required/>
+                    <input type="password" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="패스워드 확인" required/>
                 </div>
-                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="alert alert-danger"></div>
                 <div>
                     <label for="email">이메일:</label>
                     <input type="email" id="email" th:field="*{email}" placeholder="example@email.com" required/>
