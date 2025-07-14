@@ -51,24 +51,31 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
          */
         // 기본 오류 메시지
         String errorMessageKey = messageSource.getMessage("login.error.general", null, LocaleContextHolder.getLocale());
-        // 사용자 요청에서 넘어온 userCode 파라미터를 가져옴
-        String userCode = request.getParameter("userCode");
+        // 사용자 요청에서 넘어온 userId 파라미터를 가져옴
+        String userId = request.getParameter("userId");
 
         /**
          * 사용자 삭제 여부를 데이터베이스에서 확인
          * is_deleted=1인 사용자 분기 처리 (UsernameNotFoundException 전에 확인)
          */
-        if (userCode != null) {
-            // userCode로 사용자 정보 조회
-            Optional<User> userOpt = userRepository.findByUserCode(userCode);
+        if (userId != null) {
+            System.out.println("[DEBUG] userId로 사용자 정보 조회");
+            Optional<User> userOpt = userRepository.findByUserId(userId);
             // 사용자 정보가 존재할 때
             if (userOpt.isPresent()) {
                 // 사용자 정보를 담고 있는 User 객체 가져오기
+                System.out.println("[DEBUG] 사용자 정보 조회");
                 User user = userOpt.get();
                 // 사용자가 삭제되었는지 확인
                 if (user.isDeleted()) {
+                    System.out.println("[DEBUG] 사용자가 삭제됨");
                     // 사용자가 삭제되었을 때의 오류 메시지로 변경
-                    errorMessageKey = messageSource.getMessage("login.error.user.deleted", null, LocaleContextHolder.getLocale());
+                    errorMessageKey = "login.error.user.deleted";
+                    String errorMessage = messageSource.getMessage(errorMessageKey, null, LocaleContextHolder.getLocale());
+                    String encodedErrorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
+                    // 로그인 페이지로 리다이렉트(URL에 오류 메시지 포함)
+                    response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);
+                    return;
                 }
             }
         }

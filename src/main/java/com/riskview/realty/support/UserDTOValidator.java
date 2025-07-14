@@ -4,6 +4,7 @@ import com.riskview.realty.domain.dto.UserDTO;
 import com.riskview.realty.domain.repository.UserRepository;
 import com.riskview.realty.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -39,16 +40,15 @@ public class UserDTOValidator implements Validator {
         UserDTO userDTO = (UserDTO) target;
 
         // 사용자 ID 존재 확인
-        User user = userRepository.findByUserCode(userDTO.getUserCode()).orElse(null);
+        User user = userRepository.findByUserId(userDTO.getUserId()).orElse(null);
         if (user == null) {
-            errors.rejectValue("userCode", "login.error.user.notfound");
+            errors.rejectValue("userId", "login.error.user.notfound");
             return;
         }
 
         // 탈퇴한 사용자 확인
         if (user.isDeleted()) {
-            errors.rejectValue("userCode", "login.error.user.deleted");
-            return;
+            throw new DisabledException("login.error.user.deleted");
         }
 
         // 비밀번호 확인
