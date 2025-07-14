@@ -5,21 +5,37 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
+    <!-- Navbar -->
     <div th:replace="~{fragments/navbar :: navbar}"></div>
     
     <div class="container">
         <h2>회원가입</h2>
-        <form id="registrationForm" th:action="@{/register}" method="post" th:object="${userDTO}">
+        <!-- 회원가입 폼
+        form-validation.js와 연결되어있음
+        UserController.java에 /register POST 요청
+        UserDTO 객체를 사용하여 폼 데이터를 전달
+    -->
+    <form id="registrationForm" th:action="@{/register}" method="post" th:object="${userDTO}">
+            <!-- 전역 오류 메시지 표시 -->
+            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
             <div class="form-step" id="step-1">
                 <h3>1단계: 계정 정보</h3>
                 <div>
                     <label for="userId">사용자 ID:</label>
                     <input type="text" id="userId" name="userId" th:field="*{userId}" placeholder="사용자 ID"/>
+                    <!--
+                    ☑️ th:if ${#fields.hasErrors('userId')}는 폼에 제출한 데이터 중 userId 필드에 유효성 검사 오류 여부에 따라 span 표시 여부 결정
+                    ☑️ 유효성 검사에 실패하면 오류 메시지가 BindingResult 객체에 저장됨
+                    ☑️ th:errors="*{userId}"는 지정된 필드(userId)에 대한 모든 오류 메시지를 span에 표시
+                    ☑️ class="register-error"는 오류 메시지 스타일 지정
+                    -->
                     <span th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}" class="register-error"></span>
                 </div>
                 <div>
                     <label for="userNickname">닉네임:</label>
-                    <input type="text" id="userNickname" name="userNickname" th:field="*{userNickname}" placeholder="닉네임"/>
+                    <input type="text" id="userNickname" name="userNickname" th:field="*{userNickname}" placeholder="닉네임">
                     <span th:if="${#fields.hasErrors('userNickname')}" th:errors="*{userNickname}" class="register-error"></span>
                 </div>
                 <div>
@@ -65,10 +81,12 @@
         <div class="step-box" data-step="2">2</div>
     </div>
 
+    <!-- JavaScript 파일 불러오기 -->
     <script src="js/registration/email-verification.js"></script>
     <script src="js/registration/form-validation.js"></script>
+    
+    <!-- 폼 단계 관련 JavaScript 코드 -->
     <script>
-        // 폼 단계 관련 JavaScript 코드
         let currentStep = 1;
         const formSteps = document.querySelectorAll('.form-step');
         const stepBoxes = document.querySelectorAll('.step-box');

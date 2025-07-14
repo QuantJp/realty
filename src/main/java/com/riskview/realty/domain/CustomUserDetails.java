@@ -13,7 +13,8 @@ import java.util.Collections;
  */
 public class CustomUserDetails implements UserDetails {
 
-    private Long userId; // 사용자 ID
+    private Long userSeq; // 사용자 고유 식별자
+    private String userId; // 사용자 ID
     private String email; // 사용자 이메일
     private String passwordHash; // 사용자 비밀번호
     private String name; // 사용자 이름
@@ -24,7 +25,8 @@ public class CustomUserDetails implements UserDetails {
     private String userCode; // 사용자 코드
 
     // 인터페이스를 구현하는 클래스므로 수동으로 생성자 주입
-    public CustomUserDetails(Long userId, String email, String passwordHash, String name, String role, boolean enabled, boolean canManageUsers, boolean canViewAllDocs, String userCode) {
+    public CustomUserDetails(Long userSeq, String userId,String email, String passwordHash, String name, String role, boolean enabled, boolean canManageUsers, boolean canViewAllDocs, String userCode) {
+        this.userSeq = userSeq; // userSeq는 데이터베이스에서 자동 생성되므로 null로 초기화
         this.userId = userId;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -36,8 +38,12 @@ public class CustomUserDetails implements UserDetails {
         this.userCode = userCode;
     }
 
+    public Long getUserSeq() {
+        return userSeq; // 사용자 고유 식별자를 문자열로 반환
+    }
+
     // 사용자 ID 반환
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 

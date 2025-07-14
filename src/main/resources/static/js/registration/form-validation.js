@@ -226,7 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 폼 제출 이벤트 처리
     document.getElementById('registrationForm').addEventListener('submit', function(event) {
         console.log('\n[폼 제출 시작]');
-        const allInputs = this.querySelectorAll('input[required]');
+
+        // 현재 단계의 필수 입력 필드만 검증
+        const allInputs = this.querySelector(`#step-${currentStep}`).querySelectorAll('input[required]');
         console.log('- 필수 입력 필드 수:', allInputs.length);
         
         let formValid = true;

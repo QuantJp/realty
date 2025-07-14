@@ -29,6 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return new CustomUserDetails(
                 user.getUserSeq(),
+                user.getUserId(),
                 user.getEmail(),
                 user.getPasswordHash(),
                 user.getName(),

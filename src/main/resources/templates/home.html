@@ -7,7 +7,11 @@
 <body>
     <div th:replace="~{fragments/navbar :: navbar}"></div>
     <div class="container">
+        <!-- 성공 메시지가 모델에 존재하는지 확인
+        redirectAttributes.addFlashAttribute에 연결되어있음
+        -->
         <div th:if="${successMessage}" class="alert alert-success">
+            <!-- 성공 메시지 표시 -->
             <p th:text="${successMessage}"></p>
         </div>
         <h2>Welcome!</h2>

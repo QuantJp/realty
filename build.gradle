@@ -44,3 +44,15 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.named('bootRun') {
+    // JVM 인자를 추가하여 디버그 모드를 활성화합니다.
+    // -Xdebug: JVM 디버그 기능을 활성화합니다.
+    // -Xrunjdwp: JDWP(Java Debug Wire Protocol) 에이전트를 로드합니다.
+    //   transport=dt_socket: 소켓 기반 전송 방식을 사용합니다.
+    //   server=y: JVM이 디버그 서버 역할을 하여 디버거 클라이언트의 연결을 기다립니다.
+    //   suspend=n: 디버거가 연결될 때까지 JVM을 일시 중지하지 않고 애플리케이션을 바로 시작합니다.
+    //              (애플리케이션 시작 시 바로 디버깅하려면 'suspend=y'로 변경하세요.)
+    //   address=5005: 디버거가 연결할 포트 번호입니다. 필요에 따라 다른 포트로 변경할 수 있습니다.
+    jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005'
+}

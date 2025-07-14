@@ -10,7 +10,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.lang.NonNull;
 
-// UserDTO 클래스 또는 그 자식 클래스만 지원하는 Validator
+/**
+ * UserDTO 클래스 또는 그 자식 클래스만 지원하는 Validator
+ * 유효성 검사 로직을 구현
+ */ 
 @Component
 public class UserDTOValidator implements Validator {
 
@@ -36,15 +39,15 @@ public class UserDTOValidator implements Validator {
         UserDTO userDTO = (UserDTO) target;
 
         // 사용자 ID 존재 확인
-        User user = userRepository.findByUserId(userDTO.getUserId()).orElse(null);
+        User user = userRepository.findByUserCode(userDTO.getUserCode()).orElse(null);
         if (user == null) {
-            errors.rejectValue("userId", "login.error.user.notfound");
+            errors.rejectValue("userCode", "login.error.user.notfound");
             return;
         }
 
         // 탈퇴한 사용자 확인
         if (user.isDeleted()) {
-            errors.rejectValue("userId", "login.error.user.deleted");
+            errors.rejectValue("userCode", "login.error.user.deleted");
             return;
         }
 

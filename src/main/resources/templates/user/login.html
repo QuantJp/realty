@@ -15,10 +15,14 @@
         <div th:if="${param.logout}" class="alert alert-success">
             로그아웃되었습니다.
         </div>
-        <!-- 에러 메시지 표시 -->
+        <!-- 에러 메시지 표시 
+        CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴
+        -->
         <div th:if="${param.error}" class="alert alert-danger">
+            <!-- CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴 -->
             <span th:text="${param.errorMsg}"></span>
         </div>
+        <!-- SecurityConfig에서 formLogin() 설정에 따라 로그인 폼이 자동으로 생성됨 -->
         <form th:action="@{/login}" method="post" th:object="${userDTO}">
             <div>
                 <label for="userId">사용자 ID:</label>

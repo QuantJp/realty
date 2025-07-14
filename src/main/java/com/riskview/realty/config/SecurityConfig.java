@@ -34,7 +34,18 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .userDetailsService(customUserDetailsService) // 사용자 권한, 인증 관련 서비스를 제공
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/login", "/register", "/verify-email-code", "/send-verification-code", "/register_success", "/favicon.ico", "/css/**", "/js/**", "/images/**", "/static/**", "/delete_account").permitAll() // 모든 사람이 접근 가능
+                .requestMatchers("/login", 
+                                "/register", 
+                                "/verify-email-code", 
+                                "/send-verification-code", 
+                                "/register_success", 
+                                "/favicon.ico", 
+                                "/css/**", 
+                                "/js/**", 
+                                "/images/**", 
+                                "/static/**", 
+                                "/delete_account")
+                                .permitAll() // 모든 사람이 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN 역할만 접근 가능
                 .anyRequest().authenticated() // 나머지는 전부 로그인한 사람만 접근 가능
             )

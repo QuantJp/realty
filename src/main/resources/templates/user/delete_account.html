@@ -21,6 +21,7 @@
                             <strong>주의!</strong> 탈퇴하시면 모든 정보가 삭제되며, 이는 복구할 수 없습니다.
                         </div>
                         <form th:action="@{/delete_account}" method="post" id="deleteForm" th:object="${userDTO}">
+                            <input type="hidden" th:field="*{userId}" />
                             <input type="hidden" th:field="*{userCode}" />
                             <div class="text-center">
                                 <button type="submit" class="btn btn-danger me-2">
