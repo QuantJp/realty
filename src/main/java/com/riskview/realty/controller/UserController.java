@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.validation.BindingResult;
 
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 
 // 일반 사용자 컨트롤러(ROLE_USER)
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -128,18 +130,6 @@ public class UserController {
         model.addAttribute("userDTO", new UserDTO());
         // 로그인 페이지로 이동
         return "user/login";
-    }
-
-    //=========================================================
-
-    /**
-     * 홈 페이지
-     * @param model
-     * @return 홈 페이지
-     */
-    @GetMapping("/")
-    public String home(Model model) {
-        return "home";
     }
 
     //=========================================================
@@ -361,7 +351,7 @@ public class UserController {
             return "user/modify";
         } else {
             // 로그인되지 않은 사용자의 경우 로그인 페이지로 리다이렉트
-            return "redirect:/login";
+            return "redirect:/user/login";
         }
     }
 
@@ -460,7 +450,7 @@ public class UserController {
         } else {
             System.out.println("CustomerDetails 객체가 아닙니다.");
             // 로그인되지 않은 사용자의 경우 로그인 페이지로 리다이렉트
-            return "redirect:/login";
+            return "redirect:/user/login";
         }
     }
 

@@ -86,6 +86,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         // 오류 메시지 URL 인코딩
         String encodedErrorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
         // 로그인 페이지로 리다이렉트(URL에 오류 메시지 포함)
-        response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);
+        response.sendRedirect(request.getContextPath() + "/user/login?error=true&errorMsg=" + encodedErrorMessage);
     }
 }

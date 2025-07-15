@@ -1,4 +1,3 @@
-// 폼 유효성 검사 JavaScript 코드
 console.log('[폼 유효성 검사 초기화]');
 
 // 각 입력 필드를 DOM에서 참조
@@ -10,6 +9,7 @@ const emailInput = document.getElementById('email');
 const verificationCodeInput = document.getElementById('verificationCode');
 
 console.log('[DOM 요소 참조 완료]', {
+    // !! 연산자는 값이 존재하면 true, 그렇지 않으면 false를 반환
     userIdInput: !!userIdInput,
     userNicknameInput: !!userNicknameInput,
     passwordInput: !!passwordInput,
@@ -18,25 +18,45 @@ console.log('[DOM 요소 참조 완료]', {
     verificationCodeInput: !!verificationCodeInput
 });
 
-// 서버에 이메일 인증 코드를 확인하는 함수
+//==============================================
+
+/**
+ * 서버에 이메일 인증 코드를 확인하는 함수
+ */
 async function verifyEmailCode(code) {
     console.log('\n[인증 코드 검증 함수 시작]');
     console.log('- 입력된 코드:', code);
     
     try {
         console.log('[서버 요청 준비] POST /verify-email-code');
+        /**
+         * fetch API를 사용하여 서버에 이메일 인증 코드를 전송
+         * await: 비동기 요청의 결과를 기다림
+         * fetch(): Promise 기반의 비동기 요청 수행
+         */
         const response = await fetch('/verify-email-code', {
             method: 'POST',
+            // credentials: 'same-origin': 동일 출처의 쿠키만 포함
             credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
+            /**
+             * HTTP 요청의 본문에 해당
+             * URLSearchParams: URL 인코딩된 쿼리 문자열을 생성하는 JavaScript 객체
+             * code: 서버에서 request.getParameter("code")로 이 값을 읽을 수 있음
+             * 
+             * // 서버에서 받음
+             * @PostMapping("/verify-email-code")
+             * public ResponseEntity<?> verifyEmailCode(@RequestParam String code) {
+             */
             body: new URLSearchParams({
                 code: code
             })
         });
         console.log('[서버 응답 수신] 상태:', response.status);
 
+        // 응답이 실패할 경우
         if (!response.ok) {
             console.error('[HTTP 오류]', response.status, response.statusText);
             throw new Error('서버 응답이 실패했습니다.');
@@ -48,7 +68,7 @@ async function verifyEmailCode(code) {
         console.log('[응답 길이]:', text.length);
         console.log('[응답 문자코드]:', Array.from(text).map(c => c.charCodeAt(0)));
         
-        // success라는 문자열이 포함되어 있으면 성공으로 처리
+        // 응답 데이터에 success라는 문자열이 포함되어 있으면 성공으로 처리
         return text.includes('success') ? 'success' : 'invalid';
     } catch (error) {
         console.error('[치명적 오류 발생]', error);
@@ -56,26 +76,39 @@ async function verifyEmailCode(code) {
     }
 }
 
-// 서버 오류 표시 함수
+//==============================================
+
+/**
+ * 서버 오류 표시 함수
+ */
 function displayServerErrors() {
     console.log('\n[서버 오류 표시 함수 시작]');
     const serverErrors = document.querySelectorAll('.register-error');
     console.log('- 발견된 오류 요소 수:', serverErrors.length);
 
+    // 현재 단계에 오류가 있는지 확인
     let hasErrorsInCurrentStep = false;
 
+    // 모든 오류 요소를 순회
     serverErrors.forEach((errorSpan, index) => {
         console.log(`[오류 요소 ${index + 1} 처리]`);
+        // 이전 단계의 모든 에러 메시지들을 숨기고 현재 단계의 에러만 다시 표시하기 위해 none으로 설정
         errorSpan.style.display = 'none';
 
+        // .form-step 클래스를 가진 가장 가까운 부모 요소를 찾음
         const parentDiv = errorSpan.closest('.form-step');
+        // 부모 요소가 존재하면
         if (parentDiv) {
             console.log('- 단계:', parentDiv.id);
+            // 부모 요소가 현재 단계와 일치하면
             if (parentDiv.id === `step-${currentStep}`) {
                 const errorText = errorSpan.textContent.trim();
+                // 오류 메시지가 비어있지 않으면
                 if (errorText !== '') {
                     console.log('- 오류 메시지 표시:', errorText);
+                    // block으로 설정하여 표시
                     errorSpan.style.display = 'block';
+                    // 현재 단계에 오류가 있음을 표시
                     hasErrorsInCurrentStep = true;
                 }
             }
@@ -85,7 +118,11 @@ function displayServerErrors() {
     console.log('[오류 표시 완료] 현재 단계 오류 여부:', hasErrorsInCurrentStep);
 }
 
-// 유효성 검사 규칙 로드
+//==============================================
+
+/**
+ * 유효성 검사 규칙 로드
+ */
 async function loadValidationRules() {
     try {
         const response = await fetch('/js/validation-rules.json');
@@ -99,7 +136,11 @@ async function loadValidationRules() {
     }
 }
 
-// 유효성 검사 함수
+//==============================================
+
+/**
+ * 유효성 검사 함수
+ */
 async function validateField(fieldName, value) {
     const rules = await loadValidationRules();
     if (!rules || !rules[fieldName]) {
@@ -124,7 +165,11 @@ async function validateField(fieldName, value) {
     return null;
 }
 
-// 예제: 필드 유효성 검사 호출
+//==============================================
+
+/**
+ * 필드 유효성 검사 호출
+ */
 async function validateUserId() {
     const value = userIdInput.value;
     const errorMessage = await validateField('userId', value);
@@ -136,7 +181,11 @@ async function validateUserId() {
     userIdInput.reportValidity();
 }
 
-// 문서가 로드된 후 실행
+//==============================================
+
+/**
+ * 문서가 로드된 후 실행
+ */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('\n[문서 로드 완료] 이벤트 리스너 설정 시작');
 

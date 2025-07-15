@@ -14,6 +14,12 @@
         <h2>회원정보 수정</h2>
 
         <!-- 회원정보 수정 폼 -->
+        <!--
+        ☑️ th:action="@{/modify}": 폼 제출 URL
+        ☑️ method="post": HTTP POST 메소드
+        ☑️ th:object="${modifyUserDTO}": 폼 데이터를 bind할 객체.
+        ☑️ id="modifyForm": 폼 ID
+        -->
         <form th:action="@{/modify}" method="post" th:object="${modifyUserDTO}" id="modifyForm">
             <!-- 성공 메시지 표시 -->
             <div th:if="${successMessage}" class="alert alert-success">
@@ -21,6 +27,11 @@
             </div>
 
             <!-- 전역 오류 메시지 표시 -->
+            <!--
+            ☑️ #fields: 폼의 필드 관련 오류 관리
+            ☑️ hasGlobalErrors(): 전역 오류가 있는지 확인
+            ☑️ globalErrors(): 전역 오류 목록 가져오기
+            -->
             <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
                 <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
             </div>
@@ -56,7 +67,9 @@
             <div>
                 <label for="newPassword">새 비밀번호:</label>
                 <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 (4자 이상)" required/>
+                <!-- 서버에서 전달된 오류 메시지 표시 -->
                 <span th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}" class="register-error"></span>
+                <!-- 클라이언트에서 전달된 오류 메시지 표시 -->
                 <span id="passwordError" class="error-message"></span>
                 <span id="confirmError" class="error-message"></span>
             </div>

@@ -37,37 +37,38 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .userDetailsService(customUserDetailsService) // 사용자 권한, 인증 관련 서비스를 제공
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/login", 
-                                "/register", 
-                                "/verify-email-code", 
-                                "/send-verification-code", 
-                                "/register_success", 
+                .requestMatchers("/user/login", 
+                                "/user/register", 
+                                "/user/verify-email-code", 
+                                "/user/send-verification-code", 
+                                "/user/register_success", 
+                                "/user/delete_account", 
+                                "/user/modify", 
                                 "/favicon.ico", 
                                 "/css/**", 
                                 "/js/**", 
                                 "/images/**", 
-                                "/static/**", 
-                                "/delete_account", 
-                                "/modify")
+                                "/static/**")
                                 .permitAll() // 모든 사람이 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN 역할만 접근 가능
                 .anyRequest().authenticated() // 나머지는 전부 로그인한 사람만 접근 가능
             )
             .formLogin(form -> form
-                .loginPage("/login") // 로그인 페이지
+                .loginPage("/user/login") // 로그인 페이지
+                .loginProcessingUrl("/user/login") // 로그인 처리 URL
                 .usernameParameter("userId") // 로그인 폼에서 사용할 파라미터 이름
-                .defaultSuccessUrl("/login-success", true) // 로그인 성공 시 이동할 URL
+                .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 URL
                 .successHandler(customAuthenticationSuccessHandler) // 로그인 성공 시 처리할 핸들러
                 .failureHandler(customAuthenticationFailureHandler) // 로그인 실패 시 처리할 핸들러
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout") // 로그아웃 성공 시 이동할 URL
+                .logoutSuccessUrl("/user/login?logout") // 로그아웃 성공 시 이동할 URL
                 .invalidateHttpSession(true) // 세션 무효화
                 .deleteCookies("JSESSIONID") // 쿠키 삭제
                 .permitAll())
             .sessionManagement(session -> session
-                .invalidSessionUrl("/login?expired") // 세션 만료 시 이동할 URL
+                .invalidSessionUrl("/user/login?expired") // 세션 만료 시 이동할 URL
                 .maximumSessions(1) // 동시 로그인 허용 개수
                 .maxSessionsPreventsLogin(false)
             );

@@ -11,25 +11,29 @@
     <!-- Container -->
     <div class="container">
         <h2>로그인</h2>
-        <!-- /login?logout=true일 때(즉, 로그아웃되었을 때) 작동 -->
+        <!-- /user/login?logout=true일 때(즉, 로그아웃되었을 때) 작동 -->
         <div th:if="${param.logout}" class="alert alert-success">
             로그아웃되었습니다.
         </div>
-        <!-- /login?expired=true일 때(즉, 세션 만료되었을 때) 작동 -->
+        <!-- /user/login?expired=true일 때(즉, 세션 만료되었을 때) 작동 -->
         <div th:if="${param.expired}" class="alert alert-warning">
             세션이 만료되었습니다. 다시 로그인 해주세요.
         </div>
         <!-- 에러 메시지 표시 
-        CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴
+        CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/user/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴
         -->
         <div th:if="${param.error}" class="alert alert-danger">
-            <!-- CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴 -->
+            <!-- CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/user/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴 -->
             <span th:text="${param.errorMsg}"></span>
         </div>
         <!-- SecurityConfig에서 formLogin() 설정에 따라 로그인 폼이 자동으로 생성됨 -->
-        <form th:action="@{/login}" method="post" th:object="${userDTO}">
+        <form th:action="@{/user/login}" method="post" th:object="${userDTO}">
             <div>
                 <label for="userId">사용자 ID:</label>
+                <!--
+                ☑️ th:field="*{userId}": 폼 데이터를 bind할 객체의 userId 필드
+                ☑️ autofocus="autofocus": 페이지 로드 시 userId 입력 필드에 포커스
+                -->
                 <input type="text" id="userId" name="userId" th:field="*{userId}" autofocus="autofocus"/>
                 </div>
             <div>

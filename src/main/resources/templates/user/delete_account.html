@@ -20,7 +20,14 @@
                             <i class="fas fa-exclamation-triangle me-2"></i>
                             <strong>주의!</strong> 탈퇴하시면 모든 정보가 삭제되며, 이는 복구할 수 없습니다.
                         </div>
+                        <!--
+                        ☑️ th:action="@{/delete_account}": 폼 제출 URL
+                        ☑️ method="post": HTTP POST 메소드
+                        ☑️ th:object="${userDTO}": 폼 데이터를 bind할 객체.
+                        ☑️ id="deleteForm": 폼 ID
+                        -->
                         <form th:action="@{/delete_account}" method="post" id="deleteForm" th:object="${userDTO}">
+                            <!-- 탈퇴한 사용자의 ID와 userCode를 서버로 전송 -->
                             <input type="hidden" th:field="*{userId}" />
                             <input type="hidden" th:field="*{userCode}" />
                             <div class="text-center">
