@@ -68,6 +68,10 @@ public class CustomUserDetails implements UserDetails {
     // 사용자 이름 반환
     @Override
     public String getUsername() {
+        return name;
+    }
+
+    public String getEmail() {
         return email;
     }
 

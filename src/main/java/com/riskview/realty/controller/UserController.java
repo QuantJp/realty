@@ -3,7 +3,9 @@ package com.riskview.realty.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.riskview.realty.domain.CustomUserDetails;
+import com.riskview.realty.domain.dto.ModifyUserDTO;
 import com.riskview.realty.domain.dto.UserDTO;
+import com.riskview.realty.service.ModifyUserService;
 import com.riskview.realty.service.UserService;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.LinkedHashMap;
 
 // 일반 사용자 컨트롤러(ROLE_USER)
@@ -32,6 +35,8 @@ public class UserController {
 
     private final UserService userService;
 
+    private final ModifyUserService modifyUserService;
+
     // 유효성 검사 규칙이 저장될 객체(이 코드에선 validation-rules.json 파일의 내용을 저장)
     private Map<String, Object> validationRules;
 
@@ -39,10 +44,13 @@ public class UserController {
      * UserController 생성자
      * @param userService UserService 인터페이스 구현체
      */
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ModifyUserService modifyUserService) {
         this.userService = userService;
+        this.modifyUserService = modifyUserService;
         initializeValidationRules();
     }
+
+    //=========================================================
 
     /**
      * 유효성 검사 규칙 초기화
@@ -64,6 +72,8 @@ public class UserController {
             System.err.println("유효성 검사 규칙 로드 실패: " + e.getMessage());
         }
     }
+
+    //=========================================================
 
     /**
      * 필드별 유효성 검사
@@ -106,6 +116,8 @@ public class UserController {
         return null;
     }
 
+    //=========================================================
+
     /**
      * 로그인 페이지
      * @return 로그인 페이지
@@ -118,6 +130,8 @@ public class UserController {
         return "user/login";
     }
 
+    //=========================================================
+
     /**
      * 홈 페이지
      * @param model
@@ -127,6 +141,8 @@ public class UserController {
     public String home(Model model) {
         return "home";
     }
+
+    //=========================================================
 
     /**
      * 회원가입 페이지
@@ -140,6 +156,8 @@ public class UserController {
         //회원가입 페이지로 이동
         return "user/register";
     }
+
+    //=========================================================
 
     /**
      * 회원가입 프로세스
@@ -247,6 +265,8 @@ public class UserController {
         }
     }
 
+    //=========================================================
+
     /**
      * 인증코드 발송
      * @param email 사용자 이메일
@@ -278,6 +298,8 @@ public class UserController {
         }
     }
 
+    //=========================================================
+
     /**
      * 인증 코드 확인
      * @param code 사용자가 입력한 인증 코드
@@ -303,16 +325,112 @@ public class UserController {
         return result;
     }
 
+    //=========================================================
+
     /**
      * 회원정보수정 페이지
      * @param model
      * @return 회원정보수정 페이지
      */
     @GetMapping("/modify")
-    public String showModifyForm(Model model) {
-        model.addAttribute("userDTO", new UserDTO());
+    public String showModifyForm(Model model, HttpSession session) {
+        // 로그인된 사용자의 정보를 가져옴
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        // 로그인된 사용자의 정보가 CustomUserDetails 객체인 경우
+        if (principal instanceof CustomUserDetails) {
+            // 로그인된 사용자의 사용자 ID를 가져옴
+            String userId = ((CustomUserDetails) principal).getUserId();
+            String email = ((CustomUserDetails) principal).getEmail();
+            // 사용자 ID로 사용자 정보를 가져옴
+            UserDTO userDTO = userService.findByUserId(userId);
+            // 사용자 정보를 세션에 추가
+            session.setAttribute("user", userDTO);
+
+            ModifyUserDTO modifyUserDTO = new ModifyUserDTO();
+            modifyUserDTO.setUserId(userId);
+            modifyUserDTO.setEmail(email);
+            modifyUserDTO.setName(userDTO.getName());
+            modifyUserDTO.setUserNickname(userDTO.getUserNickname());
+            modifyUserDTO.setCurrentPassword(userDTO.getPassword());
+            modifyUserDTO.setNewPassword(userDTO.getPassword());
+            // 사용자 정보를 모델에 추가
+            model.addAttribute("userDTO", userDTO);
+            model.addAttribute("modifyUserDTO", modifyUserDTO);
+            // 회원정보수정 페이지로 이동
+            return "user/modify";
+        } else {
+            // 로그인되지 않은 사용자의 경우 로그인 페이지로 리다이렉트
+            return "redirect:/login";
+        }
+    }
+
+    //=========================================================
+
+    /**
+     * 회원정보수정
+     * @param modifyUserDTO 사용자 정보
+     * @param bindingResult 유효성 검사 결과
+     * @param redirectAttributes 리다이렉트 후 전달할 데이터
+     * @param model 모델
+     * @param request HTTP 요청
+     * @return 회원정보수정 페이지
+     */
+    @PostMapping("/modify")
+    public String modifyUser(
+        @Valid @ModelAttribute("modifyUserDTO") ModifyUserDTO modifyUserDTO,
+        BindingResult bindingResult,
+        RedirectAttributes redirectAttributes,
+        Model model,
+        HttpServletRequest request
+    ) {
+        // 현재 로그인된 사용자 정보 가져오기
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        if (principal instanceof CustomUserDetails) {
+            String loggedInUserId = ((CustomUserDetails) principal).getUserId();
+
+            // 유효성 검사 실패 시
+            if (bindingResult.hasErrors()) {
+                System.out.println("✘ 회원정보 수정 유효성 검사 실패");
+                bindingResult.getAllErrors().forEach(error -> 
+                    System.out.println("▶ 오류: " + error.getDefaultMessage())
+                );
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+                return "user/modify";
+            }
+            
+            // 현재 로그인된 사용자와 수정하려는 사용자가 동일한지 확인
+            if (!loggedInUserId.equals(modifyUserDTO.getUserId())) {
+                bindingResult.rejectValue("userId", "invalid.user", "다른 사용자의 정보를 수정할 수 없습니다.");
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+                return "user/modify";
+            }
+            
+            try {
+                modifyUserService.modifyUserInfo(modifyUserDTO, request.getSession());
+                redirectAttributes.addFlashAttribute("successMessage", "회원정보가 성공적으로 수정되었습니다.");
+                return "redirect:/modify";
+            } catch (ModifyUserService.InvalidPasswordException e) {
+                bindingResult.rejectValue("currentPassword", "invalid.password", "현재 비밀번호가 일치하지 않습니다.");
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+            } catch (ModifyUserService.PasswordMismatchException e) {
+                bindingResult.rejectValue("confirmNewPassword", "invalid.password.confirm", "새 비밀번호가 일치하지 않습니다.");
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+            } catch (IllegalArgumentException e) {
+                bindingResult.rejectValue("newPassword", "invalid.newPassword", e.getMessage());
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+            } catch (NoSuchElementException e) {
+                bindingResult.rejectValue("userId", "invalid.user", "사용자를 찾을 수 없습니다.");
+                model.addAttribute("modifyUserDTO", modifyUserDTO);
+            }
+        }
+        
         return "user/modify";
     }
+    
+
+    //=========================================================
 
     /**
      * 회원탈퇴 페이지
@@ -331,9 +449,9 @@ public class UserController {
 
         // 로그인된 사용자의 정보가 CustomUserDetails 객체인 경우
         if (principal instanceof CustomUserDetails) {
-            // 로그인된 사용자의 사용자 코드를 가져옴
+            // 로그인된 사용자의 사용자 ID를 가져옴
             String userId = ((CustomUserDetails) principal).getUserId();
-            // 사용자 코드를 기반으로 사용자 정보를 가져옴
+            // 사용자 ID로 사용자 정보를 가져옴
             UserDTO userDTO = userService.findByUserId(userId);
             // 사용자 정보를 모델에 추가
             model.addAttribute("userDTO", userDTO);
@@ -345,6 +463,8 @@ public class UserController {
             return "redirect:/login";
         }
     }
+
+    //=========================================================
 
     /**
      * 회원탈퇴 프로세스

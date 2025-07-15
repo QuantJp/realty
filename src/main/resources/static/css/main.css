@@ -75,6 +75,30 @@ button:hover {
     background-color: #0056b3;
 }
 
+.cancel-btn {
+    background-color: #6c757d;
+    border: none;
+    color: white;
+    margin: 5px 0;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+.cancel-btn:active {
+    background-color: #545b62;
+}
+
 /* Styles for input with a button inside */
 .input-with-button-container {
     position: relative;
@@ -214,4 +238,10 @@ button:hover {
 
 #sendVerificationCodeBtn {
     width: auto;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
 }

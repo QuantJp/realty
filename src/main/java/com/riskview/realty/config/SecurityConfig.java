@@ -2,7 +2,7 @@ package com.riskview.realty.config;
 
 import com.riskview.realty.service.CustomUserDetailsService;
 import com.riskview.realty.support.CustomAuthenticationFailureHandler;
-
+import com.riskview.realty.support.CustomAuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +27,9 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
     // 로그인 여부 및 권한에 따라 URL 접근 제어
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,7 +47,8 @@ public class SecurityConfig {
                                 "/js/**", 
                                 "/images/**", 
                                 "/static/**", 
-                                "/delete_account")
+                                "/delete_account", 
+                                "/modify")
                                 .permitAll() // 모든 사람이 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN 역할만 접근 가능
                 .anyRequest().authenticated() // 나머지는 전부 로그인한 사람만 접근 가능
@@ -52,7 +56,8 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login") // 로그인 페이지
                 .usernameParameter("userId") // 로그인 폼에서 사용할 파라미터 이름
-                .defaultSuccessUrl("/", true) // 로그인 성공 시 이동할 URL
+                .defaultSuccessUrl("/login-success", true) // 로그인 성공 시 이동할 URL
+                .successHandler(customAuthenticationSuccessHandler) // 로그인 성공 시 처리할 핸들러
                 .failureHandler(customAuthenticationFailureHandler) // 로그인 실패 시 처리할 핸들러
                 .permitAll()
             )
@@ -62,7 +67,9 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID") // 쿠키 삭제
                 .permitAll())
             .sessionManagement(session -> session
-                .sessionFixation().migrateSession() // 세션 고정 설정
+                .invalidSessionUrl("/login?expired") // 세션 만료 시 이동할 URL
+                .maximumSessions(1) // 동시 로그인 허용 개수
+                .maxSessionsPreventsLogin(false)
             );
         return http.build();
     }

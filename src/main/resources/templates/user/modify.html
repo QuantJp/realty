@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>회원정보 수정</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/modify-validation.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Container -->
+    <div class="container">
+        <h2>회원정보 수정</h2>
+
+        <!-- 회원정보 수정 폼 -->
+        <form th:action="@{/modify}" method="post" th:object="${modifyUserDTO}" id="modifyForm">
+            <!-- 성공 메시지 표시 -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <!-- 전역 오류 메시지 표시 -->
+            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            </div>
+
+            <div>
+                <label for="userId">사용자 ID:</label>
+                <input type="text" id="userId" name="userId" th:field="*{userId}" readonly="readonly"/>
+            </div>
+            
+            <div>
+                <label for="email">이메일:</label>
+                <input type="email" id="email" name="email" th:field="*{email}" readonly="readonly"/>
+            </div>
+
+            <div>
+                <label for="name">이름:</label>
+                <input type="text" id="name" name="name" th:field="*{name}" required/>
+                <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="register-error"></span>
+            </div>
+
+            <div>
+                <label for="userNickname">닉네임:</label>
+                <input type="text" id="userNickname" name="userNickname" th:field="*{userNickname}" required/>
+                <span th:if="${#fields.hasErrors('userNickname')}" th:errors="*{userNickname}" class="register-error"></span>
+            </div>
+
+            <div>
+                <label for="currentPassword">현재 비밀번호:</label>
+                <input type="password" id="currentPassword" name="currentPassword" required/>
+                <span th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}" class="register-error"></span>
+            </div>
+
+            <div>
+                <label for="newPassword">새 비밀번호:</label>
+                <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 (4자 이상)" required/>
+                <span th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}" class="register-error"></span>
+                <span id="passwordError" class="error-message"></span>
+                <span id="confirmError" class="error-message"></span>
+            </div>
+
+            <div>
+                <label for="confirmNewPassword">새 비밀번호 확인:</label>
+                <input type="password" id="confirmNewPassword" name="confirmNewPassword" required/>
+                <span th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}" class="register-error"></span>
+            </div>
+
+            <div>
+                <input type="submit" value="수정하기"/>
+                <button type="button" class="cancel-btn" onclick="location.href='/'">취소</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

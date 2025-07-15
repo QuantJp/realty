@@ -62,42 +62,27 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             System.out.println("[DEBUG] userId로 사용자 정보 조회");
             Optional<User> userOpt = userRepository.findByUserId(userId);
             // 사용자 정보가 존재할 때
-            if (userOpt.isPresent()) {
-                // 사용자 정보를 담고 있는 User 객체 가져오기
-                System.out.println("[DEBUG] 사용자 정보 조회");
-                User user = userOpt.get();
-                // 사용자가 삭제되었는지 확인
-                if (user.isDeleted()) {
-                    System.out.println("[DEBUG] 사용자가 삭제됨");
-                    // 사용자가 삭제되었을 때의 오류 메시지로 변경
-                    errorMessageKey = "login.error.user.deleted";
-                    String errorMessage = messageSource.getMessage(errorMessageKey, null, LocaleContextHolder.getLocale());
-                    String encodedErrorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
-                    // 로그인 페이지로 리다이렉트(URL에 오류 메시지 포함)
-                    response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);
-                    return;
-                }
+            if (userOpt.isPresent() && userOpt.get().isDeleted()) {
+                System.out.println("[DEBUG] 사용자가 삭제됨");
+                errorMessageKey = "login.error.user.deleted";
+            // Spring Security가 사용자 ID를 찾지 못했을 때 (데이터베이스에 없는 사용자)
+            } else if (exception instanceof UsernameNotFoundException) {
+                errorMessageKey = "login.error.user.notfound";
+            // 비밀번호가 일치하지 않을 때
+            } else if (exception instanceof BadCredentialsException) {
+                errorMessageKey = "login.error.bad.credentials";
+                // 사용자 계정이 비활성화되었을 때 (UserDetailsService에서 isEnabled=false로 설정 시)
+                // is_deleted=1인 경우를 여기에 매핑할 수 있습니다.
+            } else if (exception instanceof DisabledException) {
+                errorMessageKey = "login.error.user.disabled";
             }
         }
 
         /**
          * 오류 메시지 다국어 지원 및 URL 인코딩 처리
          */
-        // Spring Security가 사용자 ID를 찾지 못했을 때 (데이터베이스에 없는 사용자)
-        if (exception instanceof UsernameNotFoundException) {
-            errorMessageKey = "login.error.user.notfound";
-        // 비밀번호가 일치하지 않을 때
-        } else if (exception instanceof BadCredentialsException) {
-            errorMessageKey = "login.error.bad.credentials";
-            // 사용자 계정이 비활성화되었을 때 (UserDetailsService에서 isEnabled=false로 설정 시)
-            // is_deleted=1인 경우를 여기에 매핑할 수 있습니다.
-        } else if (exception instanceof DisabledException) {
-            errorMessageKey = "login.error.user.disabled";
-        }
-
         // 다국어 오류 메시지 가져오기
         String errorMessage = messageSource.getMessage(errorMessageKey, null, LocaleContextHolder.getLocale());
-
         // 오류 메시지 URL 인코딩
         String encodedErrorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8);
         // 로그인 페이지로 리다이렉트(URL에 오류 메시지 포함)

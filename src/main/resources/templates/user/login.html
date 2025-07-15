@@ -15,6 +15,10 @@
         <div th:if="${param.logout}" class="alert alert-success">
             로그아웃되었습니다.
         </div>
+        <!-- /login?expired=true일 때(즉, 세션 만료되었을 때) 작동 -->
+        <div th:if="${param.expired}" class="alert alert-warning">
+            세션이 만료되었습니다. 다시 로그인 해주세요.
+        </div>
         <!-- 에러 메시지 표시 
         CustomAuthenticationFailureHandler의 response.sendRedirect(request.getContextPath() + "/login?error=true&errorMsg=" + encodedErrorMessage);에서 받아옴
         -->
