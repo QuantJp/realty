@@ -28,13 +28,13 @@ async function verifyEmailCode(code) {
     console.log('- 입력된 코드:', code);
     
     try {
-        console.log('[서버 요청 준비] POST /verify-email-code');
+        console.log('[서버 요청 준비] POST /user/verify-email-code');
         /**
          * fetch API를 사용하여 서버에 이메일 인증 코드를 전송
          * await: 비동기 요청의 결과를 기다림
          * fetch(): Promise 기반의 비동기 요청 수행
          */
-        const response = await fetch('/verify-email-code', {
+        const response = await fetch('/user/verify-email-code', {
             method: 'POST',
             // credentials: 'same-origin': 동일 출처의 쿠키만 포함
             credentials: 'same-origin',

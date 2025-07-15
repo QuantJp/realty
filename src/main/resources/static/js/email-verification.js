@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 이메일이 유효한 경우
         if (email) {
             // fetch API를 사용하여 서버에 이메일 인증 코드를 전송
-            fetch("/send-verification-code", {
+            fetch("/user/send-verification-code", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",

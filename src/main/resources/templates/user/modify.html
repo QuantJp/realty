@@ -20,7 +20,7 @@
         ☑️ th:object="${modifyUserDTO}": 폼 데이터를 bind할 객체.
         ☑️ id="modifyForm": 폼 ID
         -->
-        <form th:action="@{/modify}" method="post" th:object="${modifyUserDTO}" id="modifyForm">
+        <form th:action="@{/user/modify}" method="post" th:object="${modifyUserDTO}" id="modifyForm">
             <!-- 성공 메시지 표시 -->
             <div th:if="${successMessage}" class="alert alert-success">
                 <span th:text="${successMessage}"></span>
