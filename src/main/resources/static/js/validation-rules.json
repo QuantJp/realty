@@ -26,5 +26,9 @@
     "required": true,
     "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
     "message": "유효한 이메일 주소를 입력해주세요."
+  },
+  "newPassword": {
+    "minLength": 8,
+    "message": "새 비밀번호는 8자 이상이어야 합니다."
   }
 }

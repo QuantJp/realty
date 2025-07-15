@@ -119,37 +119,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * 새 비밀번호 입력란 유효성 검사 함수
-     * - 비어 있거나 4자 미만이면 에러
+     * 8자 미만이면 에러
      */
     function validateNewPassword() {
         console.log('새 비밀번호 유효성 검사');
-        const password = newPassword.value;
-        if (!password) {
-            newPassword.setCustomValidity('새 비밀번호를 입력해주세요.');
-        } else if (password.length < 8) {
+
+        const newPasswordValue = newPassword.value;
+        const confirmPasswordValue = confirmNewPassword.value;
+
+        // 새 비밀번호를 입력하지 않은 경우
+        if (!newPasswordValue) {
+            // 아무런 검사도 하지 않음
+            newPassword.setCustomValidity('');
+            confirmNewPassword.setCustomValidity('');
+            return;
+        // 새 비밀번호를 입력했는데 8자 미만이면 에러
+        } else if (newPasswordValue.length < 8) {
             newPassword.setCustomValidity('새 비밀번호는 8자 이상이어야 합니다.');
+        // 새 비밀번호를 입력했는데 8자 이상이면 에러 제거
         } else {
             newPassword.setCustomValidity('');
         }
-        newPassword.reportValidity();
-    }
-
-    /**
-     * 새 비밀번호 확인 입력란 유효성 검사 함수
-     * - 폼 제출 시에만 호출됨 (입력 중에는 호출하지 않음)
-     * - 비어 있거나, 새 비밀번호와 다르면 에러
-     */
-    function validateConfirmNewPassword() {
-        console.log('새 비밀번호 확인 유효성 검사');
-        const password = newPassword.value;
-        const confirmPassword = confirmNewPassword.value;
-        if (!confirmPassword) {
-            confirmNewPassword.setCustomValidity('새 비밀번호 확인을 입력해주세요.');
-        } else if (password !== confirmPassword) {
+        
+        if (newPasswordValue !== confirmPasswordValue) {
             confirmNewPassword.setCustomValidity('새 비밀번호가 일치하지 않습니다.');
         } else {
             confirmNewPassword.setCustomValidity('');
         }
+        newPassword.reportValidity();
         confirmNewPassword.reportValidity();
     }
 
@@ -165,6 +162,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ================= 폼 제출 이벤트 처리 =================
     console.log('폼 제출 이벤트 처리');
     form.addEventListener('submit', function(e) {
+
+        // TODO: 새 비밀번호가 입력된 경우만 검사
+
         // 폼 제출 시 콘솔에 로그
         console.log('수정 폼 제출');
         // 비밀번호 일치 검사는 제출 시에만 실행

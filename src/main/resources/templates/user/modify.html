@@ -66,7 +66,7 @@
 
             <div>
                 <label for="newPassword">새 비밀번호:</label>
-                <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 (4자 이상)" required/>
+                <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호(8자 이상)" />
                 <!-- 서버에서 전달된 오류 메시지 표시 -->
                 <span th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}" class="register-error"></span>
                 <!-- 클라이언트에서 전달된 오류 메시지 표시 -->
@@ -76,7 +76,7 @@
 
             <div>
                 <label for="confirmNewPassword">새 비밀번호 확인:</label>
-                <input type="password" id="confirmNewPassword" name="confirmNewPassword" required/>
+                <input type="password" id="confirmNewPassword" name="confirmNewPassword" />
                 <span th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}" class="register-error"></span>
             </div>
 

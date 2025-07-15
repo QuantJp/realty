@@ -390,7 +390,7 @@ public class UserController {
                 return "user/modify";
             }
             
-            // 현재 로그인된 사용자와 수정하려는 사용자가 동일한지 확인
+            // 현재 로그인된 사용자와 수정하려는 사용자가 동일하지 않을 시
             if (!loggedInUserId.equals(modifyUserDTO.getUserId())) {
                 bindingResult.rejectValue("userId", "invalid.user", "다른 사용자의 정보를 수정할 수 없습니다.");
                 model.addAttribute("modifyUserDTO", modifyUserDTO);
@@ -400,7 +400,7 @@ public class UserController {
             try {
                 modifyUserService.modifyUserInfo(modifyUserDTO, request.getSession());
                 redirectAttributes.addFlashAttribute("successMessage", "회원정보가 성공적으로 수정되었습니다.");
-                return "redirect:/modify";
+                return "redirect:/user/modify";
             } catch (ModifyUserService.InvalidPasswordException e) {
                 bindingResult.rejectValue("currentPassword", "invalid.password", "현재 비밀번호가 일치하지 않습니다.");
                 model.addAttribute("modifyUserDTO", modifyUserDTO);

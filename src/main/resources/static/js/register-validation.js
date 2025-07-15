@@ -8,15 +8,60 @@ const passwordConfirmInput = document.getElementById('passwordConfirm');
 const emailInput = document.getElementById('email');
 const verificationCodeInput = document.getElementById('verificationCode');
 
-console.log('[DOM 요소 참조 완료]', {
-    // !! 연산자는 값이 존재하면 true, 그렇지 않으면 false를 반환
-    userIdInput: !!userIdInput,
-    userNicknameInput: !!userNicknameInput,
-    passwordInput: !!passwordInput,
-    passwordConfirmInput: !!passwordConfirmInput,
-    emailInput: !!emailInput,
-    verificationCodeInput: !!verificationCodeInput
-});
+let validationRules = null; // validation-rules.json 캐싱
+
+//==============================================
+
+/**
+ * 유효성 검사 규칙 로드 (최초 1회만 fetch)
+ */
+async function loadValidationRules() {
+    if (validationRules) return validationRules;
+    try {
+        const response = await fetch('/js/validation-rules.json');
+        if (!response.ok) throw new Error('유효성 검사 규칙을 로드할 수 없습니다.');
+        validationRules = await response.json();
+        return validationRules;
+    } catch (error) {
+        console.error('[유효성 검사 규칙 로드 오류]', error);
+        return null;
+    }
+}
+
+/**
+ * 단일 필드 유효성 검사 (json 기반)
+ */
+function validateFieldByRule(fieldName, value) {
+    if (!validationRules || !validationRules[fieldName]) return null;
+    const rule = validationRules[fieldName];
+    if (rule.required && (!value || value.trim() === '')) {
+        return rule.message;
+    }
+    if (rule.minLength && value.length < rule.minLength) {
+        return rule.message;
+    }
+    if (rule.maxLength && value.length > rule.maxLength) {
+        return rule.message;
+    }
+    if (rule.pattern && !(new RegExp(rule.pattern).test(value))) {
+        return rule.message;
+    }
+    return null;
+}
+
+//==============================================
+
+/**
+ * 실시간 유효성 검사 이벤트 핸들러 (공통)
+ */
+function makeLiveValidator(inputElem, fieldName) {
+    inputElem.addEventListener('keyup', async function() {
+        if (!validationRules) await loadValidationRules();
+        const errorMsg = validateFieldByRule(fieldName, inputElem.value);
+        inputElem.setCustomValidity(errorMsg || '');
+        inputElem.reportValidity();
+    });
+}
 
 //==============================================
 
@@ -121,215 +166,63 @@ function displayServerErrors() {
 //==============================================
 
 /**
- * 유효성 검사 규칙 로드
- */
-async function loadValidationRules() {
-    try {
-        const response = await fetch('/js/validation-rules.json');
-        if (!response.ok) {
-            throw new Error('유효성 검사 규칙을 로드할 수 없습니다.');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('[유효성 검사 규칙 로드 오류]', error);
-        return null;
-    }
-}
-
-//==============================================
-
-/**
- * 유효성 검사 함수
- */
-async function validateField(fieldName, value) {
-    const rules = await loadValidationRules();
-    if (!rules || !rules[fieldName]) {
-        console.warn(`[유효성 검사 규칙 없음] 필드: ${fieldName}`);
-        return true;
-    }
-
-    const rule = rules[fieldName];
-    if (rule.required && !value) {
-        return rule.message;
-    }
-    if (rule.minLength && value.length < rule.minLength) {
-        return rule.message;
-    }
-    if (rule.maxLength && value.length > rule.maxLength) {
-        return rule.message;
-    }
-    if (rule.pattern && !new RegExp(rule.pattern).test(value)) {
-        return rule.message;
-    }
-
-    return null;
-}
-
-//==============================================
-
-/**
- * 필드 유효성 검사 호출
- */
-async function validateUserId() {
-    const value = userIdInput.value;
-    const errorMessage = await validateField('userId', value);
-    if (errorMessage) {
-        userIdInput.setCustomValidity(errorMessage);
-    } else {
-        userIdInput.setCustomValidity('');
-    }
-    userIdInput.reportValidity();
-}
-
-//==============================================
-
-/**
  * 문서가 로드된 후 실행
  */
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('\n[문서 로드 완료] 이벤트 리스너 설정 시작');
+document.addEventListener('DOMContentLoaded', async function() {
+    // validation-rules.json 미리 로드
+    await loadValidationRules();
 
-    function validateUserId() {
-        console.log('\n[사용자 ID 검증 시작]');
-        const value = userIdInput.value;
-        console.log('- 입력값:', value);
-        
-        if (!value) {
-            console.log('- 결과: 빈 값');
-            userIdInput.setCustomValidity('사용자 ID를 입력해주세요.');
-        } else if (/[^a-z0-9]/.test(value)) {
-            console.log('- 결과: 특수문자 포함');
-            userIdInput.setCustomValidity('사용자 ID는 영소문자와 숫자만 사용할 수 있습니다.');
+    // 각 입력란에 실시간 유효성 검사 연결
+    makeLiveValidator(userIdInput, 'userId');
+    makeLiveValidator(userNicknameInput, 'userNickname');
+    makeLiveValidator(passwordInput, 'password');
+    makeLiveValidator(emailInput, 'email');
+    makeLiveValidator(document.getElementById('name'), 'name');
+
+    // 비밀번호 확인(일치) 검사는 별도 처리
+    passwordConfirmInput.addEventListener('keyup', function() {
+        if (passwordInput.value !== passwordConfirmInput.value) {
+            passwordConfirmInput.setCustomValidity('비밀번호가 일치하지 않습니다.');
         } else {
-            console.log('- 결과: 유효함');
-            userIdInput.setCustomValidity('');
+            passwordConfirmInput.setCustomValidity('');
         }
-        userIdInput.reportValidity();
-    }
+        passwordConfirmInput.reportValidity();
+    });
 
-    function validateUserNickname() {
-        console.log('\n[닉네임 검증 시작]');
-        const value = userNicknameInput.value;
-        console.log('- 입력값:', value);
-        
-        if (!value) {
-            console.log('- 결과: 빈 값');
-            userNicknameInput.setCustomValidity('사용자 닉네임을 입력해주세요.');
-        } else if (/[^a-z0-9]/.test(value)) {
-            console.log('- 결과: 특수문자 포함');
-            userNicknameInput.setCustomValidity('사용자 닉네임은 영소문자와 숫자만 사용할 수 있습니다.');
-        } else {
-            console.log('- 결과: 유효함');
-            userNicknameInput.setCustomValidity('');
-        }
-        userNicknameInput.reportValidity();
-    }
-
-    function validatePasswords() {
-        console.log('\n[비밀번호 검증 시작]');
-        const password = passwordInput.value;
-        console.log('- 비밀번호 길이:', password.length);
-        
-        if (!password) {
-            console.log('- 결과: 빈 값');
-            passwordInput.setCustomValidity('비밀번호를 입력해주세요.');
-        } else if (password.length < 4) {
-            console.log('- 결과: 길이 부족');
-            passwordInput.setCustomValidity('비밀번호는 4자 이상이어야 합니다.');
-        } else {
-            console.log('- 결과: 유효함');
-            passwordInput.setCustomValidity('');
-        }
-        passwordInput.reportValidity();
-    }
-
-    function validateEmail() {
-        console.log('\n[이메일 검증 시작]');
-        const value = emailInput.value;
-        console.log('- 입력값:', value);
-        
-        if (!value) {
-            console.log('- 결과: 빈 값');
-            emailInput.setCustomValidity('이메일을 입력해주세요.');
-        } else if (!/^([a-z0-9]+)@([a-z0-9]+(\.[a-z]+)+)$/.test(value)) {
-            console.log('- 결과: 형식 불일치');
-            emailInput.setCustomValidity('이메일은 영소문자+숫자@영소문자 형식이어야 합니다.');
-        } else {
-            console.log('- 결과: 유효함');
-            emailInput.setCustomValidity('');
-        }
-        emailInput.reportValidity();
-    }
-
-    // 이벤트 리스너 설정
-    console.log('[이벤트 리스너 등록 시작]');
-    
-    userIdInput.addEventListener('keyup', validateUserId);
-    userNicknameInput.addEventListener('keyup', validateUserNickname);
-    passwordInput.addEventListener('keyup', validatePasswords);
-    passwordConfirmInput.addEventListener('keyup', validatePasswords);
-    emailInput.addEventListener('keyup', validateEmail);
-    
-    console.log('[이벤트 리스너 등록 완료]');
-
-    // 폼 제출 이벤트 처리
-    document.getElementById('registrationForm').addEventListener('submit', function(event) {
-        console.log('\n[폼 제출 시작]');
-
-        // 현재 단계의 필수 입력 필드만 검증
-        const allInputs = this.querySelector(`#step-${currentStep}`).querySelectorAll('input[required]');
-        console.log('- 필수 입력 필드 수:', allInputs.length);
-        
-        let formValid = true;
-        let hasEmptyFields = false;
-
-        allInputs.forEach((input, index) => {
-            console.log(`\n[필드 ${index + 1} 검증]`);
-            console.log('- 필드명:', input.id);
-            console.log('- 값 존재:', !!input.value);
-            console.log('- 유효성:', input.checkValidity());
-            
-            if (!input.value) {
-                hasEmptyFields = true;
-                console.log('- 결과: 빈 필드');
-            }
-            if (!input.checkValidity()) {
-                formValid = false;
-                console.log('- 결과: 유효성 검사 실패');
-                
-                const parentStepDiv = input.closest('.form-step');
-                if (parentStepDiv) {
-                    const stepNum = parseInt(parentStepDiv.id.replace('step-', ''));
-                    console.log('- 해당 단계:', stepNum);
-                    if (currentStep !== stepNum) {
-                        console.log('- 단계 이동');
-                        showStep(stepNum);
-                    }
-                }
-                input.reportValidity();
-            }
+    // 폼 제출 시 모든 필드 최종 검사
+    document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+        await loadValidationRules();
+        let valid = true;
+        // 모든 필드 검사
+        [
+            {elem: userIdInput, name: 'userId'},
+            {elem: userNicknameInput, name: 'userNickname'},
+            {elem: passwordInput, name: 'password'},
+            {elem: emailInput, name: 'email'},
+            {elem: document.getElementById('name'), name: 'name'}
+        ].forEach(({elem, name}) => {
+            const errorMsg = validateFieldByRule(name, elem.value);
+            elem.setCustomValidity(errorMsg || '');
+            if (errorMsg) valid = false;
         });
-
-        console.log('\n[폼 검증 결과]');
-        console.log('- 빈 필드 존재:', hasEmptyFields);
-        console.log('- 전체 유효성:', formValid);
-
-        if (hasEmptyFields) {
-            console.log('[제출 취소] 빈 필드');
-            event.preventDefault();
-            return;
-        }
-
-        console.log('- preventDefault 호출 여부:', formValid ? '아니오' : '예');
-        if (!formValid) {
-            event.preventDefault();
-            console.log('- 폼 제출 중단');
+        // 비밀번호 확인
+        if (passwordInput.value !== passwordConfirmInput.value) {
+            passwordConfirmInput.setCustomValidity('비밀번호가 일치하지 않습니다.');
+            valid = false;
         } else {
-            console.log('- 폼 제출 진행');
+            passwordConfirmInput.setCustomValidity('');
+        }
+        // 인증코드(서버와 통신하는 부분은 기존대로 유지)
+        if (!verificationCodeInput.value) {
+            verificationCodeInput.setCustomValidity('인증 코드를 입력해주세요.');
+            valid = false;
+        } else {
+            verificationCodeInput.setCustomValidity('');
         }
 
-        console.log('[서버 오류 확인]');
-        displayServerErrors();
+        if (!valid) {
+            event.preventDefault();
+        }
     });
 
     // 단계 전환 처리

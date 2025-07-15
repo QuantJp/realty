@@ -15,7 +15,7 @@
         UserController.java에 /register POST 요청
         UserDTO 객체를 사용하여 폼 데이터를 전달
     -->
-    <form id="registrationForm" th:action="@{/register}" method="post" th:object="${userDTO}">
+    <form id="registrationForm" th:action="@{/user/register}" method="post" th:object="${userDTO}">
             <!-- 전역 오류 메시지 표시 -->
             <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" style="color: red; margin-bottom: 15px;">
                 <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
@@ -40,7 +40,7 @@
                 </div>
                 <div>
                     <label for="password">패스워드:</label>
-                    <input type="password" id="password" name="password" th:field="*{password}" placeholder="패스워드 (4자 이상)" required/>
+                    <input type="password" id="password" name="password" th:field="*{password}" placeholder="패스워드(8자 이상)" required/>
                     <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="register-error"></span>
                 </div>
                 <div>

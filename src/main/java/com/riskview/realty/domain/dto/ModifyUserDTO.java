@@ -32,7 +32,6 @@ public class ModifyUserDTO {
     private String currentPassword; // 현재 비밀번호
 
     // 새 비밀번호는 선택사항 (변경하지 않을 수도 있음)
-    @Size(min = 8, message = "{validation.newPassword.size}")
     private String newPassword; // 새 비밀번호
 
     // 새 비밀번호 확인은 선택사항

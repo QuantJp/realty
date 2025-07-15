@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/favicon.ico", 
                                 "/css/**", 
                                 "/js/**", 
-                                "/images/**", 
+                                "/images/**",
+                                "/board/**",
                                 "/static/**")
                                 .permitAll() // 모든 사람이 접근 가능
                 .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN 역할만 접근 가능
